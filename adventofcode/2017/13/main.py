@@ -5,6 +5,7 @@
 class Scanner:
 
     def __init__(self, scan_range: int):
+        self.direction = 1
         self.last_value = None
         self.scan_range = scan_range
         self.scanner = self.generator
@@ -19,8 +20,10 @@ class Scanner:
     @property
     def generator(self):
         while True:
+            self.direction = 1
             for index in range(self.scan_range):
                 yield index
+            self.direction = -1
             for index in range(self.scan_range-2, 0, -1):
                 yield index
 
@@ -42,7 +45,14 @@ def simple_ride(scanners: dict) -> int:
     return severity
 
 def smart_ride(scanners: dict) -> int:
-    pass
+    current_depth, picosecond = -1, -1
+    total_depth = max(scanners.keys())+1
+    while current_depth < total_depth:
+        picosecond += 1
+        for depth, scanner in scanners.items():
+            scanner_value = next(scanner)
+#        if scanner[current_depth+1].last_value in [None, 
+#        if depth == current_depth+1 and scanner_value == 0:
 
 
 if __name__ == '__main__':
