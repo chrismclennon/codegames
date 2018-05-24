@@ -16,6 +16,7 @@ def execute_instructions(instructions):
         'jgz': lambda x, y: y if register[x] > 0 else 0
     }
     for instruction in instructions:
+        instruction, x, y = instruction.split()
         command = instruction.split()
 
 
