@@ -1,2 +1,4 @@
+.idea/*
 *.pyc
 venv/
+adventofcode/2016/out/*
