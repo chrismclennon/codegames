@@ -2,3 +2,6 @@
 *.pyc
 venv/
 adventofcode/out/*
+exercism/java/.idea/*
+exercism/java/*/.gradle/*
+exercism/java/*/build/*
