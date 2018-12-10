@@ -1,0 +1,84 @@
+from copy import deepcopy
+import re
+
+with open('input.txt') as f:
+    data = f.read().splitlines()
+
+
+sample_data = [
+    'position=< 9,  1> velocity=< 0,  2>',
+    'position=< 7,  0> velocity=<-1,  0>',
+    'position=< 3, -2> velocity=<-1,  1>',
+    'position=< 6, 10> velocity=<-2, -1>',
+    'position=< 2, -4> velocity=< 2,  2>',
+    'position=<-6, 10> velocity=< 2, -2>',
+    'position=< 1,  8> velocity=< 1, -1>',
+    'position=< 1,  7> velocity=< 1,  0>',
+    'position=<-3, 11> velocity=< 1, -2>',
+    'position=< 7,  6> velocity=<-1, -1>',
+    'position=<-2,  3> velocity=< 1,  0>',
+    'position=<-4,  3> velocity=< 2,  0>',
+    'position=<10, -3> velocity=<-1,  1>',
+    'position=< 5, 11> velocity=< 1, -2>',
+    'position=< 4,  7> velocity=< 0, -1>',
+    'position=< 8, -2> velocity=< 0,  1>',
+    'position=<15,  0> velocity=<-2,  0>',
+    'position=< 1,  6> velocity=< 1,  0>',
+    'position=< 8,  9> velocity=< 0, -1>',
+    'position=< 3,  3> velocity=<-1,  1>',
+    'position=< 0,  5> velocity=< 0, -1>',
+    'position=<-2,  2> velocity=< 2,  0>',
+    'position=< 5, -2> velocity=< 1,  2>',
+    'position=< 1,  4> velocity=< 2,  1>',
+    'position=<-2,  7> velocity=< 2, -2>',
+    'position=< 3,  6> velocity=<-1, -1>',
+    'position=< 5,  0> velocity=< 1,  0>',
+    'position=<-6,  0> velocity=< 2,  0>',
+    'position=< 5,  9> velocity=< 1, -2>',
+    'position=<14,  7> velocity=<-2,  0>',
+    'position=<-3,  6> velocity=< 2, -1>',
+]
+# data = sample_data
+
+regex = "position=<\\s?(-?[0-9]+), \\s?(-?[0-9]+)> velocity=<\\s?(-?[0-9]+), \\s?(-?[0-9]+)>"
+points = []
+for line in data:
+    point = [int(i) for i in re.findall(regex, line)[0]]
+    points.append(point)
+
+points_history = []
+iterations = []
+for i in range(20000):
+    for point in points:
+        point[0] += point[2]
+        point[1] += point[3]
+    x = max(x[0] for x in points) - min(x[0] for x in points)
+    y = max(y[1] for y in points) - min(y[1] for y in points)
+    area = x*y
+    iterations.append(area)
+    points_history.append(deepcopy(points))
+
+min_area = min(iterations)
+index = 0
+while iterations[index] != min_area:
+    index += 1
+
+draw_points = points_history[index]
+min_x = min(x[0] for x in draw_points)
+max_x = max(x[0] for x in draw_points)
+min_y = min(y[1] for y in draw_points)
+max_y = max(y[1] for y in draw_points)
+print('Min iteration index:', index)
+for y_grid in range(min_y, max_y+1):
+    for x_grid in range(min_x, max_x+1):
+        for x, y, dx, dy in draw_points:
+            if x_grid == x and y_grid == y:
+                print('#', end='')
+                break
+        else:
+            print(' ', end='')
+    print('')
+
+    
+
+
