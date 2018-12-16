@@ -1,13 +1,19 @@
+from enum import Enum
+from typing import List
+
+
 with open('sample.txt') as f:
-    battlefield = f.read().splitlines()
-battlefield = [list(row) for row in battlefield]
+    battlefield = [list(row) for row in f]
 
 
-class Coordinate:
+class Direction(Enum):
     LEFT = (-1, 0)
     RIGHT = (1, 0)
     UP = (0, 1)
     DOWN = (0, -1)
+
+
+class Coordinate:
 
     def __init__(self, x, y):
         self.x = x
@@ -26,34 +32,43 @@ class Coordinate:
         return '({x}, {y})'.format(x=self.x, y=self.y)
 
     @property
-    def adjacent_points(self):
-        return sorted([
-            self.peek(Coordinate.UP),
-            self.peek(Coordinate.DOWN),
-            self.peek(Coordinate.LEFT),
-            self.peek(Coordinate.RIGHT)
-        ])
+    def adjacent_coordinates(self) -> List['Coordinate']:
+        """Return adjacent coordinates that are not walls."""
+        adjacent_coordinates = [
+            self.peek(Direction.UP),
+            self.peek(Direction.DOWN),
+            self.peek(Direction.LEFT),
+            self.peek(Direction.RIGHT)
+        ]
+        return [coord
+                for coord in adjacent_coordinates
+                if battlefield[coord.y][coord.x] != '#']
 
-    def distance(self, other):
+    def distance(self, other: 'Coordinate') -> int:
+        """
+        Return walking distance to other coordinate.
+        Return None if no path exists.
+        """
+        # TODO: Walking distance
         return abs(self.x - other.x) + abs(self.y - other.y)
 
-    def move(self, direction):
+    def move(self, direction: 'Direction'):
         dx, dy = direction
         self.x += dx
         self.y += dy
     
-    def peek(self, direction):
+    def peek(self, direction: 'Direction') -> 'Coordinate':
         dx, dy = direction
         x = self.x + dx
         y = self.y + dy
         return Coordinate(x, y)
     
+    ###### CONTINUE REFACTOR HERE
 
 class Unit:
-    def __init__(self, battlefield, coordinate, unit_type):
+    def __init__(self, coordinate, unit_type):
         self.alive = True
         self.attack_power = 3
-        self.battlefield = battlefield
         self.coordinate = coordinate
         self.hit_points = 200
         self.unit_type = unit_type
@@ -78,7 +93,7 @@ class Unit:
         other.hit_points -= self.attack_power
         if other.hit_points <= 0:
             other.alive = False
-            self.battlefield[other.coordinate.y][other.coordinate.x] == '.'
+            battlefield[other.coordinate.y][other.coordinate.x] == '.'
 
     def get_closest_target(self, all_units):
         possible_targets = [target
@@ -181,32 +196,3 @@ for y in range(len(battlefield)):
             unit_type = current_char
             new_unit = Unit(battlefield, current_coordinate, unit_type)
             units.append(new_unit)
-
-# Play the battle
-round_number = 0
-while len({unit.unit_type for unit in units if unit.alive}) > 1:
-    units.sort()
-    for unit in units:
-        if unit.coordinate.x == 3 and unit.coordinate.y == 4:
-            import pdb; pdb.set_trace()
-        closest_target = unit.get_closest_target(units)
-        if not closest_target: # If there is no target, the combat has ended.
-            break
-        if unit.coordinate.distance(closest_target.coordinate) == 1:  # Attack if adjacent
-            unit.attack(closest_target)
-        else:  # Move
-            closest_point = unit.get_closest_point(closest_target)
-            if not closest_point:
-                continue
-            unit.move(closest_point)
-        for line in battlefield:
-            print(''.join(line))
-        import pdb; pdb.set_trace()
-
-    round_number += 1
-    print('Round {}'.format(round_number))
-    for line in battlefield:
-        print(''.join(line))
-    print(units)
-    import pdb; pdb.set_trace()
-
