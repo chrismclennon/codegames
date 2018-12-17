@@ -3,7 +3,7 @@ from enum import Enum
 from typing import List
 
 
-with open('sample.txt') as f:
+with open('input.txt') as f:
     battlefield = [list(row.strip()) for row in f]
 
 
@@ -165,10 +165,12 @@ for y in range(len(battlefield)):
 
 # Play the battle
 round_number = 0
+combat_ended_midturn = False
 while len({unit.unit_type for unit in units if unit.alive}) > 1:
     units = [unit for unit in units if unit.alive]
     units.sort(key=lambda x: x.coordinate)
-    for unit in units:
+    # if round_number == 37: import pdb; pdb.set_trace()
+    for unit_number, unit in enumerate(units):
         closest_target = unit.get_closest_target(units)
         if not closest_target:  # If there is no target, do nothing.
             continue
@@ -182,11 +184,23 @@ while len({unit.unit_type for unit in units if unit.alive}) > 1:
             # Pick the adjacent unit with the least amount of hit points.
             closest_target = unit.get_weakest_adjacent_target(units)
             unit.attack(closest_target)
+            # Check if last unit died.
+            if len({unit.unit_type for unit in units if unit.alive}) <= 1:
+                combat_ended_midturn = True
 
-    round_number += 1
+    if not combat_ended_midturn:
+        round_number += 1
+
+    # Print for debugging
     print('Round {}'.format(round_number))
     for line in battlefield:
         print(''.join(line))
     units.sort(key=lambda x: x.coordinate)
     print(units)
-    import pdb; pdb.set_trace()
+    # import pdb; pdb.set_trace()
+
+num_full_rounds = round_number
+total_hit_points = sum([unit.hit_points for unit in units if unit.alive])
+print('Part one:', num_full_rounds, total_hit_points, num_full_rounds*total_hit_points)
+
+# -1 to num rounds or +3 to total hit points
