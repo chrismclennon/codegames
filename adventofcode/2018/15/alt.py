@@ -1,9 +1,10 @@
+from collections import deque
 from enum import Enum
 from typing import List
 
 
 with open('sample.txt') as f:
-    battlefield = [list(row) for row in f]
+    battlefield = [list(row.strip()) for row in f]
 
 
 class Direction(Enum):
@@ -14,6 +15,7 @@ class Direction(Enum):
 
 
 class Coordinate:
+    """Requires `battlefield` global variable."""
 
     def __init__(self, x, y):
         self.x = x
@@ -44,40 +46,54 @@ class Coordinate:
                 for coord in adjacent_coordinates
                 if battlefield[coord.y][coord.x] != '#']
 
-    def distance(self, other: 'Coordinate') -> int:
-        """
-        Return walking distance to other coordinate.
-        Return None if no path exists.
-        """
-        # TODO: Walking distance
-        return abs(self.x - other.x) + abs(self.y - other.y)
-
     def move(self, direction: 'Direction'):
         dx, dy = direction
         self.x += dx
         self.y += dy
     
     def peek(self, direction: 'Direction') -> 'Coordinate':
-        dx, dy = direction
+        dx, dy = direction.value
         x = self.x + dx
         y = self.y + dy
         return Coordinate(x, y)
-    
-    ###### CONTINUE REFACTOR HERE
+
+    def path(self, other: 'Coordinate') -> List['Coordinate']:
+        """
+        Return path to other coordinate.
+        Return None if no path exists.
+        """
+        paths = deque([[self]])
+        while True:
+            if not paths:
+                return None
+            if len(paths) > 5000:  # If we have too many paths, there probably is no path.
+                return None
+            path = paths.popleft()
+            adjacent = sorted(path[-1].adjacent_coordinates)
+            if not adjacent:
+                continue
+            if any([coord == other for coord in adjacent]):
+                path.append(other)
+                return path
+            for adjacent_coord in adjacent:
+                if adjacent_coord in path:
+                    continue
+                if battlefield[adjacent_coord.y][adjacent_coord.x] != '.':
+                    continue
+                new_path = path[:]
+                new_path.append(adjacent_coord)
+                paths.append(new_path)
+
 
 class Unit:
+    """Requires `battlefield` global variable."""
+
     def __init__(self, coordinate, unit_type):
         self.alive = True
         self.attack_power = 3
         self.coordinate = coordinate
         self.hit_points = 200
         self.unit_type = unit_type
-
-    def __eq__(self, other):
-        return self.coordinate == other.coordinate
-
-    def __lt__(self, other):
-        return self.coordinate < other.coordinate
 
     def __repr__(self):
         return str(self)
@@ -89,101 +105,51 @@ class Unit:
             coordinate=self.coordinate
         )
 
-    def attack(self, other):
+    def attack(self, other: 'Unit'):
         other.hit_points -= self.attack_power
         if other.hit_points <= 0:
             other.alive = False
-            battlefield[other.coordinate.y][other.coordinate.x] == '.'
+            battlefield[other.coordinate.y][other.coordinate.x] = '.'
 
-    def get_closest_target(self, all_units):
+    def get_closest_target(self, all_units: List['Unit']) -> 'Unit':
         possible_targets = [target
-                            for target in units
+                            for target in all_units
                             if target.unit_type != self.unit_type
-                                and target != self
-                                and target.alive]
+                               and target != self
+                               and target.alive]
         if not possible_targets:
             return None
-        possible_targets.sort()  # Enforce reading order
+        possible_targets.sort(key=lambda x: x.coordinate)  # Enforce reading order
         closest_target = possible_targets[0]
-        closest_distance = self.walking_distance(closest_target.coordinate)
+        closest_path = self.coordinate.path(closest_target.coordinate)
         for target in possible_targets[1:]:
-            target_distance = self.walking_distance(target.coordinate)
-            if target_distance < closest_distance:
+            path_to_target = self.coordinate.path(target.coordinate)
+            if not path_to_target:
+                continue
+            if not closest_path or len(path_to_target) < len(closest_path):
                 closest_target = target
-                closest_distance = target_distance
-        return closest_target
+                closest_path = path_to_target
+        return closest_target if closest_path is not None else None
 
-    def get_closest_point(self, target):
-        # TODO: Get closest _REACHABLE_ point?
-        eligible_coordinates = target.get_open_adjacent_coordinates()
-        if not eligible_coordinates:
-            return None
-        eligible_coordinates.sort()  # Enforce reading order
-        closest_point = eligible_coordinates[0]
-        closest_distance = self.walking_distance(closest_point)
-        if not closest_distance:
-            return None
-        for point in eligible_coordinates[1:]:
-            distance = self.walking_distance(point)
-            if not distance:
-                return None
-            if distance < closest_distance:
-                closest_point = point
-                closest_distance = distance
-        return closest_point
+    def get_weakest_adjacent_target(self, all_units: List['Unit']) -> 'Unit':
+        adjacent_coordinates = self.coordinate.adjacent_coordinates
+        possible_targets = [target
+                            for target in all_units
+                            if target.unit_type != self.unit_type
+                               and target != self
+                               and target.alive
+                               and target.coordinate in adjacent_coordinates]
+        possible_targets.sort(key=lambda x: x.coordinate)  # Enforce reading order
+        weakest_target = possible_targets[0]
+        for target in possible_targets[1:]:
+            if target.hit_points < weakest_target.hit_points:
+                weakest_target = target
+        return weakest_target
 
-    def get_open_adjacent_coordinates(self):
-        eligible_coordinates = self.coordinate.adjacent_points
-        return [coord
-                for coord in eligible_coordinates
-                if self.battlefield[coord.y][coord.x] == '.']
-
-    def move(self, point):
-        eligible_coordinates = self.get_open_adjacent_coordinates()
-        min_coordinate = eligible_coordinates[0]
-        min_distance = min_coordinate.distance(point)
-        for coordinate in eligible_coordinates[1:]:
-            distance = coordinate.distance(point)
-            if distance < min_distance:
-                min_distance = distance
-                min_coordinate = coordinate
-        self.battlefield[self.coordinate.y][self.coordinate.x] = '.'
-        self.battlefield[min_coordinate.y][min_coordinate.x] = self.unit_type
-        self.coordinate = min_coordinate
-
-    def walking_distance(self, point):
-        walking_distance = 0
-        current_point = self.coordinate
-        while current_point != point:
-            if walking_distance > 10:
-                for line in battlefield:
-                    print(''.join(line))
-                import pdb; pdb.set_trace()
-            eligible_coordinates = [
-                current_point.peek(Coordinate.UP),
-                current_point.peek(Coordinate.DOWN),
-                current_point.peek(Coordinate.LEFT),
-                current_point.peek(Coordinate.RIGHT)
-            ]
-            eligible_coordinates = [
-                coord 
-                for coord in eligible_coordinates 
-                if self.battlefield[coord.y][coord.x] != '#'
-                   and self.battlefield[coord.y][coord.x] != self.unit_type
-            ]
-            if not eligible_coordinates:
-                return None
-            eligible_coordinates.sort()
-            min_coordinate = eligible_coordinates[0]
-            min_distance = min_coordinate.distance(point)  # TODO: Compare walking distance not distance?
-            for coordinate in eligible_coordinates[1:]:
-                distance = coordinate.distance(point)
-                if distance < min_distance:
-                    min_distance = distance
-                    min_coordinate = coordinate
-            current_point = min_coordinate
-            walking_distance += 1
-        return walking_distance
+    def move(self, point: 'Coordinate'):
+        battlefield[self.coordinate.y][self.coordinate.x] = '.'
+        battlefield[point.y][point.x] = self.unit_type
+        self.coordinate = next_coordinate
 
 
 # Identify units
@@ -194,5 +160,33 @@ for y in range(len(battlefield)):
         if current_char in ('E', 'G'):
             current_coordinate = Coordinate(x, y)
             unit_type = current_char
-            new_unit = Unit(battlefield, current_coordinate, unit_type)
+            new_unit = Unit(current_coordinate, unit_type)
             units.append(new_unit)
+
+# Play the battle
+round_number = 0
+while len({unit.unit_type for unit in units if unit.alive}) > 1:
+    units = [unit for unit in units if unit.alive]
+    units.sort(key=lambda x: x.coordinate)
+    for unit in units:
+        closest_target = unit.get_closest_target(units)
+        if not closest_target:  # If there is no target, do nothing.
+            continue
+        path_to_target = unit.coordinate.path(closest_target.coordinate)
+        if not path_to_target:  # Cannot reach target. Do nothing.
+            continue
+        elif len(path_to_target) > 2:  # Move
+            next_coordinate = path_to_target[1]
+            unit.move(next_coordinate)
+        if len(path_to_target)-1 <= 2:  # Attack if adjacent
+            # Pick the adjacent unit with the least amount of hit points.
+            closest_target = unit.get_weakest_adjacent_target(units)
+            unit.attack(closest_target)
+
+    round_number += 1
+    print('Round {}'.format(round_number))
+    for line in battlefield:
+        print(''.join(line))
+    units.sort(key=lambda x: x.coordinate)
+    print(units)
+    import pdb; pdb.set_trace()
