@@ -34,7 +34,7 @@ class Coordinate:
         return '({x}, {y})'.format(x=self.x, y=self.y)
 
     @property
-    def adjacent_coordinates(self) -> List['Coordinate']:
+    def adjacent_coordinates(self):
         """Return adjacent coordinates that are not walls."""
         adjacent_coordinates = [
             self.peek(Direction.UP),
@@ -46,18 +46,18 @@ class Coordinate:
                 for coord in adjacent_coordinates
                 if battlefield[coord.y][coord.x] != '#']
 
-    def move(self, direction: 'Direction'):
+    def move(self, direction):
         dx, dy = direction
         self.x += dx
         self.y += dy
     
-    def peek(self, direction: 'Direction') -> 'Coordinate':
+    def peek(self, direction):
         dx, dy = direction.value
         x = self.x + dx
         y = self.y + dy
         return Coordinate(x, y)
 
-    def path(self, other: 'Coordinate') -> List['Coordinate']:
+    def path(self, other):
         """
         Return path to other coordinate.
         Return None if no path exists.
@@ -66,7 +66,7 @@ class Coordinate:
         while True:
             if not paths:
                 return None
-            if len(paths) > 5000:  # If we have too many paths, there probably is no path.
+            if len(paths) > 100000:  # If we have too many paths, there probably is no path.
                 return None
             path = paths.popleft()
             adjacent = sorted(path[-1].adjacent_coordinates)
@@ -105,13 +105,13 @@ class Unit:
             coordinate=self.coordinate
         )
 
-    def attack(self, other: 'Unit'):
+    def attack(self, other):
         other.hit_points -= self.attack_power
         if other.hit_points <= 0:
             other.alive = False
             battlefield[other.coordinate.y][other.coordinate.x] = '.'
 
-    def get_closest_target(self, all_units: List['Unit']) -> 'Unit':
+    def get_closest_target(self, all_units):
         possible_targets = [target
                             for target in all_units
                             if target.unit_type != self.unit_type
@@ -131,7 +131,7 @@ class Unit:
                 closest_path = path_to_target
         return closest_target if closest_path is not None else None
 
-    def get_weakest_adjacent_target(self, all_units: List['Unit']) -> 'Unit':
+    def get_weakest_adjacent_target(self, all_units):
         adjacent_coordinates = self.coordinate.adjacent_coordinates
         possible_targets = [target
                             for target in all_units
@@ -146,7 +146,7 @@ class Unit:
                 weakest_target = target
         return weakest_target
 
-    def move(self, point: 'Coordinate'):
+    def move(self, point):
         battlefield[self.coordinate.y][self.coordinate.x] = '.'
         battlefield[point.y][point.x] = self.unit_type
         self.coordinate = next_coordinate
@@ -171,8 +171,12 @@ while len({unit.unit_type for unit in units if unit.alive}) > 1:
     units.sort(key=lambda x: x.coordinate)
     # if round_number == 37: import pdb; pdb.set_trace()
     for unit_number, unit in enumerate(units):
+        if not unit.alive:
+            continue
         closest_target = unit.get_closest_target(units)
         if not closest_target:  # If there is no target, do nothing.
+            if len({unit.unit_type for unit in units if unit.alive}) <= 1:
+                combat_ended_midturn = True
             continue
         path_to_target = unit.coordinate.path(closest_target.coordinate)
         if not path_to_target:  # Cannot reach target. Do nothing.
@@ -185,8 +189,6 @@ while len({unit.unit_type for unit in units if unit.alive}) > 1:
             closest_target = unit.get_weakest_adjacent_target(units)
             unit.attack(closest_target)
             # Check if last unit died.
-            if len({unit.unit_type for unit in units if unit.alive}) <= 1:
-                combat_ended_midturn = True
 
     if not combat_ended_midturn:
         round_number += 1
