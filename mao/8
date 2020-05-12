@@ -1,0 +1,7 @@
+# This one broke my brain, since order is _always_ evaluated top to bottom.
+# Initializer at bottom rule, and terminating clause in the middle.
+# Crazy!
+
+sb:bs
+bs::bs
+:s
