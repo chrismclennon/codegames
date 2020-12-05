@@ -19,7 +19,6 @@ func main() {
 
 func parseInput() []map[string]string {
 	data, readFileErr := ioutil.ReadFile("input.txt")
-	// data, readFileErr := ioutil.ReadFile("sampleInput.txt")
 	if readFileErr != nil {
 		panic(readFileErr)
 	}
