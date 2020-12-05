@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -46,10 +47,22 @@ func calculateSeatID(boardingPass string) int {
 	return seatID
 }
 
+func fancyCalculateSeatID(boardingPass string) int {
+	boardingPass = strings.ReplaceAll(boardingPass, "F", "0")
+	boardingPass = strings.ReplaceAll(boardingPass, "B", "1")
+	boardingPass = strings.ReplaceAll(boardingPass, "L", "0")
+	boardingPass = strings.ReplaceAll(boardingPass, "R", "1")
+
+	row, _ := strconv.ParseInt(boardingPass[:7], 2, 64)
+	seat, _ := strconv.ParseInt(boardingPass[7:], 2, 64)
+	seatID := int(row*8 + seat)
+	return seatID
+}
+
 func partOne(boardingPasses []string) {
 	maxSeatID := -1
 	for _, boardingPass := range boardingPasses {
-		seatID := calculateSeatID(boardingPass)
+		seatID := fancyCalculateSeatID(boardingPass)
 		if seatID > maxSeatID {
 			maxSeatID = seatID
 		}
@@ -60,7 +73,7 @@ func partOne(boardingPasses []string) {
 func partTwo(boardingPasses []string) {
 	seatIDs := []int{}
 	for _, boardingPass := range boardingPasses {
-		seatID := calculateSeatID(boardingPass)
+		seatID := fancyCalculateSeatID(boardingPass)
 		seatIDs = append(seatIDs, seatID)
 	}
 
