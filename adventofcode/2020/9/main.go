@@ -39,7 +39,7 @@ func readInput(filename string) []int {
 }
 
 func partOne(numbers []int, windowSize int) int {
-	queue := list.New()
+	queue := list.New() // In retrospect, I don't need a queue. I could've just tracked some indexes on the numbers slice.
 	allNumbers := map[int]bool{}
 
 	for _, number := range numbers[:windowSize] {
