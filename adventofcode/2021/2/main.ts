@@ -1,37 +1,61 @@
 const fs = require("fs")
 
-let input: string[] = fs.readFileSync("input.txt")
-    .toString()
-    .split("\n")
-
-class Coordinate {
-    horizontal!: number
-    depth!: number
-
-    constructor() {
-        this.horizontal = 0
-        this.depth = 0
-    }
+enum Direction {
+    Forward,
+    Up,
+    Down,
+    Unknown,
 }
 
-function processInstructions(instructions: string[]): number {
-    let pos: Coordinate = new Coordinate()
+type Instruction = {
+    direction: Direction
+    value: number
+}
 
-    for (let instruction of instructions) {
-        let [command, strVal]: string[] = instruction.split(" ")
-        let val: number = Number(strVal)
+type Coordinate = {
+    horizontal: number
+    depth: number
+}
 
-        switch (command) {
+let input: Instruction[] = fs.readFileSync("input.txt")
+    .toString()
+    .split("\n")
+    .map((line: string) => {
+        const [dir, amount] = line.split(" ")
+
+        let direction: Direction = Direction.Unknown
+        switch (dir) {
             case "forward": {
-                pos.horizontal += val
-                break
-            }
-            case "down": {
-                pos.depth += val
+                direction = Direction.Forward
                 break
             }
             case "up": {
-                pos.depth -= val
+                direction = Direction.Up
+                break
+            }
+            case "down": {
+                direction = Direction.Down
+                break
+            }
+        }
+        return {direction: direction, value: Number(amount)}
+    })
+
+function processInstructions(instructions: Instruction[]): number {
+    let pos: Coordinate = {horizontal: 0, depth: 0}
+
+    for (let instruction of instructions) {
+        switch (instruction.direction) {
+            case Direction.Forward: {
+                pos.horizontal += instruction.value
+                break
+            }
+            case Direction.Down: {
+                pos.depth += instruction.value
+                break
+            }
+            case Direction.Up: {
+                pos.depth -= instruction.value
                 break
             }
         }
@@ -39,26 +63,23 @@ function processInstructions(instructions: string[]): number {
     return pos.depth * pos.horizontal
 }
 
-function processComplexInstructions(instructions: string[]): number {
-    let pos: Coordinate = new Coordinate()
+function processComplexInstructions(instructions: Instruction[]): number {
+    let pos: Coordinate = {horizontal: 0, depth: 0}
     let aim: number = 0
 
     for (let instruction of instructions) {
-        let [command, strVal]: string[] = instruction.split(" ")
-        let val: number = Number(strVal)
-
-        switch (command) {
-            case "forward": {
-                pos.horizontal += val
-                pos.depth += (aim * val)
+        switch (instruction.direction) {
+            case Direction.Forward: {
+                pos.horizontal += instruction.value
+                pos.depth += aim * instruction.value
                 break
             }
-            case "down": {
-                aim += val
+            case Direction.Down: {
+                aim += instruction.value
                 break
             }
-            case "up": {
-                aim -= val
+            case Direction.Up: {
+                aim -= instruction.value
                 break
             }
         }
