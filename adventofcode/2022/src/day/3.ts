@@ -1,6 +1,5 @@
 import * as fs from "fs";
 import Day from "./day";
-import assert from "assert";
 
 export default class DayThree implements Day {
     getBadge(rucksacks: string[]): string {
