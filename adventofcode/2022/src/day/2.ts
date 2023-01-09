@@ -1,7 +1,8 @@
 import * as fs from "fs";
+import Day from "./day";
 
 
-export default class DayTwo {
+export default class DayTwo implements Day {
     scoring: Record<string, number> = {
         "X": 1,
         "Y": 2,
