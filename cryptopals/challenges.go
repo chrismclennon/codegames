@@ -9,6 +9,7 @@ func RunChallenge(set int, challenge int) string {
 	}
 }
 
+// TODO: maybe these should run as unit tests instead? Consider deleting.
 func RunChallengeSetOne(challenge int) string {
 	switch challenge {
 	case 1:
