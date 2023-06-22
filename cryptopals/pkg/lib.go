@@ -35,19 +35,18 @@ func FixedXor(a, b []byte) ([]byte, error) {
 }
 
 // S1C3
-func SingleByteXorCipher(src []byte) (msg []byte, key byte, err error) {
+func SingleByteXorCipher(src []byte) (msg []byte, key byte, score int, err error) {
 	dst, err := DecodeHex(src)
 	if err != nil {
 		return
 	}
 
-	var bestScore int
 	for i := 0; i < 256; i++ {
 		k := byte(i)
 		currentMsg := DecryptSingleByteXor(dst, k)
 		currentScore := getBytesWeight(currentMsg)
-		if currentScore > bestScore {
-			bestScore = currentScore
+		if currentScore > score {
+			score = currentScore
 			msg = currentMsg
 			key = k
 		}
@@ -103,4 +102,19 @@ func getCharWeight(char byte) int {
 		byte('e'): 14,
 	}
 	return wm[char]
+}
+
+// S1C4
+func detectSingleCharacterXor() (msg string, score int, err error) {
+	for _, line := range StaticSetOneChallengeFour {
+		currMsg, _, currScore, err := SingleByteXorCipher([]byte(line))
+		if err != nil {
+			return "", 0, err
+		}
+		if currScore > score {
+			score = currScore
+			msg = string(currMsg)
+		}
+	}
+	return
 }

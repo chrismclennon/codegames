@@ -43,15 +43,32 @@ func TestFixedXor(t *testing.T) {
 func TestSingleByteXorCipher(t *testing.T) {
 	t.Run("S1C3", func(t *testing.T) {
 		input := []byte("1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736")
+
 		expectedMsg := "Cooking MC's like a pound of bacon"
 		expectedKey := "X"
-		msg, key, err := SingleByteXorCipher(input)
+		expectedScore := 204
+
+		msg, key, score, err := SingleByteXorCipher(input)
 		if err != nil {
 			t.Errorf("unexpected error: %s", err)
 		} else if string(msg) != expectedMsg {
 			t.Errorf("incorrect message: %q != %q", msg, expectedMsg)
 		} else if string(key) != expectedKey {
 			t.Errorf("incorrect key: %q != %q", key, expectedKey)
+		} else if score != expectedScore {
+			t.Errorf("incorrect score: %d != %d", score, expectedScore)
+		}
+	})
+}
+
+func TestDetectSingleCharacterXor(t *testing.T) {
+	t.Run("S1C4", func(t *testing.T) {
+		actual, _, err := detectSingleCharacterXor()
+		expected := "Now that the party is jumping\n"
+		if err != nil {
+			t.Errorf("unexpected error: %s", err)
+		} else if actual != expected {
+			t.Errorf("incorrect message: %q != %q", actual, expected)
 		}
 	})
 }
