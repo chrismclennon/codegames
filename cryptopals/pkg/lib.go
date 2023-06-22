@@ -118,3 +118,12 @@ func detectSingleCharacterXor() (msg string, score int, err error) {
 	}
 	return
 }
+
+// S1C5
+func EncryptRepeatingKeyXor(msg, key []byte) []byte {
+	res := make([]byte, len(msg))
+	for i := range msg {
+		res[i] = msg[i] ^ key[i%len(key)]
+	}
+	return res
+}
