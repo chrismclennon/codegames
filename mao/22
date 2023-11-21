@@ -1,0 +1,21 @@
+aa||:a
+bb||:b
+cc||:c
+||::
+
+ab|b:bab|
+ab|c:
+ab|:
+ac|:
+bc|:
+
+// Sort
+ca:ac
+ba:ab
+cb:bc
+
+|c:c|
+|b:b|
+|a:a|
+
+:|
