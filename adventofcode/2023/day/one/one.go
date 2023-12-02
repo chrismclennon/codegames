@@ -1,4 +1,4 @@
-package day
+package one
 
 import (
 	"fmt"
@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func One() {
+func Run() {
 	data, _ := os.ReadFile("inputs/1.txt")
 	lines := strings.Split(string(data), "\n")
 	fmt.Printf("PART 1: %d\n", onePtOne(lines))

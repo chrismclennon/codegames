@@ -2,15 +2,17 @@ package main
 
 import (
 	"fmt"
-	"github.com/chrismclennon/adventofcode/2023/day"
+	"github.com/chrismclennon/adventofcode/2023/day/one"
+	"github.com/chrismclennon/adventofcode/2023/day/two"
 )
 
 func main() {
 	days := []func(){
-		day.One,
+		one.Run,
+		two.Run,
 	}
 	for i, d := range days {
-		fmt.Printf("\n\n---\nDAY %d\n", i)
+		fmt.Printf("\n\n---\nDAY %d\n", i+1)
 		d()
 	}
 }
