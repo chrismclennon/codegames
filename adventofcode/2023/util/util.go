@@ -7,13 +7,13 @@ import (
 	"strings"
 )
 
-func ReadLines(dayNum int) ([]string, error) {
+func MustReadLines(dayNum int) []string {
 	fileName := fmt.Sprintf("inputs/%d.txt", dayNum)
 	data, err := os.ReadFile(fileName)
 	if err != nil {
-		return []string{}, err
+		panic(fmt.Sprintf("cannot read file: %s", fileName))
 	}
-	return strings.Split(string(data), "\n"), nil
+	return strings.Split(string(data), "\n")
 }
 
 func MustParseInt(s string) int {

@@ -7,7 +7,7 @@ import (
 )
 
 func Run() {
-	lines, _ := util.ReadLines(2)
+	lines := util.MustReadLines(2)
 	gs := convert(lines)
 	fmt.Printf("PART ONE: %d\n", twoPtOne(gs))
 	fmt.Printf("PART TWO: %d\n", twoPtTwo(gs))
