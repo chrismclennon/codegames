@@ -23,3 +23,24 @@ func MustParseInt(s string) int {
 	}
 	return int(n)
 }
+
+func MustParseInt64(s string) int64 {
+	n, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("cannot parse int: %s", s))
+	}
+	return n
+}
+
+func MustStringToInt64Slice(s string) []int64 {
+	f := strings.Fields(s)
+	ints := make([]int64, len(f))
+	for i, ff := range f {
+		n, err := strconv.ParseInt(ff, 10, 64)
+		if err != nil {
+			panic(fmt.Sprintf("cannot parse int: %s", n))
+		}
+		ints[i] = n
+	}
+	return ints
+}
