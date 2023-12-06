@@ -21,9 +21,9 @@ func main() {
 		six.Run,
 	}
 	for i, d := range days {
-		fmt.Printf("\n\n---\nDAY %d\n", i+1)
+		fmt.Printf("\n\n---\n📅 DAY %d\n", i+1)
 		start := time.Now()
 		d()
-		fmt.Printf("Time: %v\n", time.Since(start))
+		fmt.Printf("⏱️ Time: %v\n", time.Since(start))
 	}
 }
