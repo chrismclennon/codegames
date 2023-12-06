@@ -8,6 +8,7 @@ import (
 	"github.com/chrismclennon/adventofcode/2023/day/six"
 	"github.com/chrismclennon/adventofcode/2023/day/three"
 	"github.com/chrismclennon/adventofcode/2023/day/two"
+	"time"
 )
 
 func main() {
@@ -21,6 +22,8 @@ func main() {
 	}
 	for i, d := range days {
 		fmt.Printf("\n\n---\nDAY %d\n", i+1)
+		start := time.Now()
 		d()
+		fmt.Printf("Time: %v\n", time.Since(start))
 	}
 }
