@@ -26,7 +26,8 @@ func Run() {
 	lines := util.MustReadLines(5)
 	m := constructMaps(lines)
 	fmt.Printf("PART ONE: %d\n", ptOne(m))
-	fmt.Printf("PART TWO: %d\n", ptTwo(m))
+	//fmt.Printf("PART TWO: %d\n", ptTwo(m))
+	fmt.Println("PART TWO: SKIPPED")
 }
 
 func constructMaps(lines []string) maps {
