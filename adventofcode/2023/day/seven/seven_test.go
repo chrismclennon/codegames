@@ -50,15 +50,7 @@ func TestPtTwo(t *testing.T) {
 }
 
 func TestCardCmp(t *testing.T) {
-	got := cardCmp('Q', 'T')
-	want := 1
-	if got != want {
-		t.Errorf("got %d, want %d", got, want)
-	}
-}
-
-func TestCardCmp2(t *testing.T) {
-	got := cardCmp('J', '2')
+	got := cardCmp('Q', 'T', "AKQJT98765432")
 	want := 1
 	if got != want {
 		t.Errorf("got %d, want %d", got, want)

@@ -120,57 +120,7 @@ func getHandType2(cards string) handType {
 	return getHandType(cards)
 }
 
-func cardCmp(a, b rune) int {
-	cmp := []rune{
-		'A',
-		'K',
-		'Q',
-		'J',
-		'T',
-		'9',
-		'8',
-		'7',
-		'6',
-		'5',
-		'4',
-		'3',
-		'2',
-	}
-	if a == b {
-		return 0
-	}
-	var aIdx, bIdx int
-	for i, v := range cmp {
-		if v == a {
-			aIdx = i
-		}
-		if v == b {
-			bIdx = i
-		}
-	}
-	if aIdx < bIdx {
-		// earlier in array is larger card, so return 1
-		return 1
-	}
-	return -1
-}
-
-func cardCmp2(a, b rune) int {
-	cmp := []rune{
-		'A',
-		'K',
-		'Q',
-		'T',
-		'9',
-		'8',
-		'7',
-		'6',
-		'5',
-		'4',
-		'3',
-		'2',
-		'J',
-	}
+func cardCmp(a, b rune, cmp string) int {
 	if a == b {
 		return 0
 	}
@@ -199,7 +149,7 @@ func ptOne(hands []hand) int {
 			return 1
 		}
 		for i := range a.cards {
-			c := cardCmp(rune(a.cards[i]), rune(b.cards[i]))
+			c := cardCmp(rune(a.cards[i]), rune(b.cards[i]), "AKQJT98765432")
 			if c != 0 {
 				return c
 			}
@@ -226,7 +176,7 @@ func ptTwo(hands []hand) int {
 			return 1
 		}
 		for i := range a.cards {
-			c := cardCmp2(rune(a.cards[i]), rune(b.cards[i]))
+			c := cardCmp(rune(a.cards[i]), rune(b.cards[i]), "AKQT98765432J")
 			if c != 0 {
 				return c
 			}
